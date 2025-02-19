@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='emprestimo.css')}}" type="text/css">
+    <title>Empréstimo</title>
+</head>
+<body>
+    <nav>
+        <a href="cliente_dashboard">Início</a>
+        <a href="editar">Editar</a>
+        <a style="background-color: #052c25; color: white" href="emprestimo">Novo Emprestimo</a>
+        <a href="{{ url_for('gerenciar_emprestimos' ) }}">Meus Empréstimos</a>
+        <a href="{{ url_for('logout' ) }}">Sair</a>
+    </nav>
+    <main>
+        <div class="livro_emp">
+            <div class="cad_titulo">
+                <h1>Empréstimos de Livros</h1>
+            </div>
+            <form id="emprestimoForm" method="POST" action="{{url_for('emprestimo')}}">
+                <div class="livros-emp">
+                    {% for livro in livros %}
+                    <div class="livro-container">
+                        <div class="livro-header">{{ livro[1] }}</div>
+                        <div class="livro-detalhes">Gênero: {{livro[-2]}}</div>
+                        <div class="livro-detalhes">Autor(a): {{livro[-1]}}</div>
+                        <div class="livro-detalhes">Preço: R$ {{ livro[9] }}</div>
+                        <div class="livro-detalhes">Quantidade disponível: {{ livro[8] }}</div>
+                        <button type="button" class="adicionar" data-id="{{ livro[0] }}" data-titulo="{{ livro[1] }}" data-preco="{{ livro[9] }}">Adicionar à lista</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="livros_add">
+                    <h2>Livros Selecionados</h2>
+                    <div id="selecionados">
+                        <!-- Livros selecionados serão adicionados aqui dinamicamente -->
+                    </div>
+                    <h3>Total: R$ <span id="total">0.00</span></h3>
+
+                    <label for="duracao">Duração do empréstimo (dias): </label>
+                    <input type="number" id="duracao" name="duracao" min="1" value="1" required>
+                    <button type="submit">Confirmar Empréstimo</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <script src="{{url_for('static', filename='js/script.js')}}"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cliente.css') }}">
+    <title>Dashboard do Cliente</title>
+</head>
+<body>
+    <main class="conteudo">
+        <div class="cad_titulo">
+            <h1>Bem-Vindo, {{cliente[0]}}</h1>
+        </div>
+        <aside>
+            <div id="cli-op">
+                <h1> O que você deseja fazer hoje?</h1>
+                <ul>
+                    <li><a href="{{ url_for('editar') }}">Editar Perfil</a></li>
+                    <li><a href="{{ url_for('emprestimo') }}">Fazer Empréstimo</a></li>
+                    <li><a href="{{ url_for('gerenciar_emprestimos') }}">Meus Empréstimos</a></li>
+                    <li><a href="{{ url_for('logout') }}">Fazer Logout</a></li>
+                </ul>
+            </div>
+        </aside>
+    </main>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    <script>
+        setTimeout(function() {
+            var flashContainer = document.getElementById("flash-container");
+            if (flashContainer) {
+                flashContainer.style.transition = "opacity 0.5s";
+                flashContainer.style.opacity = "0";
+                setTimeout(() => flashContainer.remove(), 500); //
+            }
+        }, 3000);
+    </script>
+</body>
+</html>

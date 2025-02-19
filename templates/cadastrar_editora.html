@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cadastrosgerais.css') }}">
+    <title>Cadastrar Editora</title>
+</head>
+<body>
+    <nav>
+        <a href="gerente_dashboard">Início</a>
+        <a href="cadastrar_livro">Livro</a>
+        <a href="cadastrar_autor">Autor</a>
+        <a style="background-color: #052c25; color: white" href="cadastrar_editora">Editora</a>
+        <a href="cadastrar_genero">Gênero</a>
+    </nav>
+    <main class="Cadastro">
+        <div class="cad_titulo">
+            <h1>Editora</h1>
+        </div>
+        <div class="formulario">
+            <form method="POST" action="{{ url_for('cadastrar_editora') }}" id="cadastro_editora">
+                <label for="autor_nome">Nome da Editora:</label>
+                <input type="text" name="editora_nome" id="editora_nome" required>
+                <button type="submit">Cadastrar Editora</button>
+            </form>
+        </div>
+    </main>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    <script>
+        setTimeout(function() {
+            var flashContainer = document.getElementById("flash-container");
+            if (flashContainer) {
+                flashContainer.style.transition = "opacity 0.5s";
+                flashContainer.style.opacity = "0";
+                setTimeout(() => flashContainer.remove(), 500); //
+            }
+        }, 3000);
+    </script>
+</body>
+</html>

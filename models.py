@@ -3,6 +3,7 @@ from sqlalchemy import ForeignKey, String, Float, DateTime
 from sqlalchemy.orm import relationship
 from typing import List
 from datetime import datetime
+from flask_login import UserMixin  # Importe UserMixin
 
 db = SQLAlchemy()
 
@@ -20,7 +21,7 @@ class Gerente(db.Model):
         return f'<Gerente {self.ger_nome}>'
 
 # Tabela de Clientes
-class Cliente(db.Model):
+class Cliente(db.Model, UserMixin):
     __tablename__ = 'tb_cliente'
     cli_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     cli_nome = db.Column(db.String(40), nullable=False)
@@ -32,6 +33,10 @@ class Cliente(db.Model):
 
     def __repr__(self):
         return f'<Cliente {self.cli_nome}>'
+
+    # Método get_id para Flask-Login
+    def get_id(self):
+        return str(self.cli_id)
 
 # Tabela de Endereços
 class Endereco(db.Model):

@@ -7,7 +7,6 @@ from functools import wraps
 from datetime import datetime, timedelta
 from models import db, Cliente, Gerente, Emprestimo, Livro, Autor, Editora, Genero, EmprestimoLivro
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teste.db'
 app.secret_key = 'muitodificil'
@@ -22,10 +21,9 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-
 @login_manager.user_loader
 def load_user(user_id):
-    return Cliente.query.get(user_id)
+    return Cliente.query.get(int(user_id))  # Carrega o usuário pelo ID
 
 def is_email_taken(email):
     return Cliente.query.filter_by(cli_email=email).first() is not None
@@ -81,7 +79,6 @@ def login_cliente():
         email = request.form.get('email')
         senha = request.form.get('senha')
 
-        # Verifica se os campos estão preenchidos
         if not email or not senha:
             flash('Por favor, preencha todos os campos.', 'error')
             return redirect(url_for('login_cliente'))
@@ -90,12 +87,15 @@ def login_cliente():
 
         if cliente and bcrypt.check_password_hash(cliente.cli_senha, senha):
             login_user(cliente)
-            flash('Login realizado com sucesso!', 'success')  # Mensagem de sucesso
+            session['logged_in'] = True
+            session['user_id'] = cliente.cli_id  # Define o user_id na sessão
+            flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('cliente_dashboard'))
         else:
             flash('E-mail ou senha inválidos.', 'error')
 
     return render_template('login_cliente.html')
+
 @app.route('/login_gerente', methods=['GET', 'POST'])
 def login_gerente():
     session.clear()
@@ -119,8 +119,50 @@ def login_gerente():
 @app.route('/cliente_dashboard')
 @login_required
 def cliente_dashboard():
-    cliente = Cliente.query.get(current_user.id)
+    cliente = Cliente.query.get(current_user.cli_id)  # Usa current_user.cli_id
     return render_template('cliente_dashboard.html', cliente=cliente)
+
+@app.route('/editar', methods=['GET', 'POST'])
+@login_required
+def editar():
+    cliente = Cliente.query.get(current_user.cli_id)
+
+    if request.method == 'POST':
+        nome = request.form.get('nome')
+        email = request.form.get('email')
+        telefone = request.form.get('telefone')
+
+        if email != cliente.cli_email and is_email_taken(email):
+            flash('Este e-mail já está em uso.', 'warning')
+            return redirect(url_for('editar'))
+
+        cliente.cli_nome = nome
+        cliente.cli_email = email
+        cliente.cli_telefone = telefone
+
+        db.session.commit()
+        flash('Perfil atualizado com sucesso!', 'success')
+        return redirect(url_for('cliente_dashboard'))
+
+    return render_template('editar.html', cliente=cliente)
+
+@app.route('/excluir', methods=['POST'])
+@login_required
+def excluir():
+    cliente = Cliente.query.get(current_user.cli_id)
+
+    if not cliente:
+        flash('Usuário não encontrado.', 'error')
+        return redirect(url_for('cliente_dashboard'))
+
+    logout_user()
+    db.session.delete(cliente)
+    db.session.commit()
+    session.clear()
+
+    flash('Conta excluída com sucesso.', 'success')
+    return redirect(url_for('index'))
+
 
 @app.route('/admin_dashboard')
 @admin_required
@@ -235,7 +277,7 @@ def emprestimo():
             emprestimo_livros.append({'livro': livro, 'quantidade': int(quantidade)})
 
         novo_emprestimo = Emprestimo(
-            emp_cli_id=session['user_id'],
+            emp_cli_id=current_user.cli_id,  # Usa current_user.cli_id
             emp_data_ini=datetime.now(),
             emp_status='Ativo',
             emp_total=total,
@@ -243,7 +285,7 @@ def emprestimo():
         )
 
         db.session.add(novo_emprestimo)
-        db.session.flush()  # Para obter o ID do novo empréstimo
+        db.session.flush()
 
         for item in emprestimo_livros:
             db.session.add(EmprestimoLivro(
@@ -253,7 +295,7 @@ def emprestimo():
                 eml_preco=item['quantidade'] * item['livro'].liv_preco
             ))
 
-            item['livro'].liv_estoque -= item['quantidade']  # Atualiza o estoque
+            item['livro'].liv_estoque -= item['quantidade']
             db.session.add(item['livro'])
 
         db.session.commit()

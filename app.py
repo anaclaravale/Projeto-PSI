@@ -234,19 +234,31 @@ def adicionar_gerente():
     return render_template('admin_dashboard.html')
 
 @app.route('/cadastrar_autor', methods=['GET', 'POST'])
+@admin_required
 def cadastrar_autor():
     if request.method == 'POST':
-        nome = request.form.get('nome')
+        nome = request.form.get('autor_nome')  # Captura o valor do campo 'autor_nome'
 
+        if not nome:
+            flash('O nome do autor é obrigatório.', 'error')
+            return redirect(url_for('cadastrar_autor'))
+
+        # Verifica se o autor já existe
+        autor_existente = Autor.query.filter_by(aut_nome=nome).first()
+        if autor_existente:
+            flash('Autor já cadastrado.', 'error')
+            return redirect(url_for('cadastrar_autor'))
+
+        # Cria um novo autor
         novo_autor = Autor(aut_nome=nome)
 
         try:
             db.session.add(novo_autor)
             db.session.commit()
             flash('Autor cadastrado com sucesso!', 'success')
-        except IntegrityError:
+        except Exception as e:
             db.session.rollback()
-            flash('Erro ao cadastrar o autor: nome já existe.', 'error')
+            flash(f'Erro ao cadastrar o autor: {str(e)}', 'error')
 
         return redirect(url_for('cadastrar_autor'))
 
@@ -256,7 +268,7 @@ def cadastrar_autor():
 @admin_required
 def cadastrar_editora():
     if request.method == 'POST':
-        nome = request.form.get('nome')
+        nome = request.form.get('editora_nome')
 
         # Verifica se a editora já existe
         if Editora.query.filter_by(edi_nome=nome).first():
@@ -281,7 +293,7 @@ def cadastrar_editora():
 @admin_required
 def cadastrar_genero():
     if request.method == 'POST':
-        nome = request.form.get('nome')
+        nome = request.form.get('genero_nome')
 
         # Verifica se o gênero já existe
         if Genero.query.filter_by(gen_nome=nome).first():
@@ -306,6 +318,7 @@ def cadastrar_genero():
 @admin_required
 def cadastrar_livro():
     if request.method == 'POST':
+        # Captura os dados do formulário
         titulo = request.form.get('titulo')
         isbn = request.form.get('isbn')
         ano = request.form.get('ano')
@@ -315,8 +328,26 @@ def cadastrar_livro():
         pais_origem = request.form.get('pais_origem')
         estoque = request.form.get('estoque')
         preco = request.form.get('preco')
-        gerente_id = session['gerente_id']  # ID do gerente logado
+        gerente_id = session.get('gerente_id')  # ID do gerente logado
 
+        # Validações básicas
+        if not all([titulo, isbn, ano, autor_id, editora_id, genero_id, pais_origem, estoque, preco]):
+            flash('Todos os campos são obrigatórios.', 'error')
+            return redirect(url_for('cadastrar_livro'))
+
+        try:
+            # Converte os valores para os tipos corretos
+            ano = int(ano)
+            estoque = int(estoque)
+            preco = float(preco)
+            autor_id = int(autor_id)
+            editora_id = int(editora_id)
+            genero_id = int(genero_id)
+        except ValueError:
+            flash('Dados inválidos. Verifique os campos numéricos.', 'error')
+            return redirect(url_for('cadastrar_livro'))
+
+        # Cria um novo livro
         novo_livro = Livro(
             liv_titulo=titulo,
             liv_isbn=isbn,
@@ -337,13 +368,16 @@ def cadastrar_livro():
         except IntegrityError:
             db.session.rollback()
             flash('Erro ao cadastrar o livro: ISBN ou título já existem.', 'error')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erro ao cadastrar o livro: {str(e)}', 'error')
 
         return redirect(url_for('cadastrar_livro'))
 
-    # Buscar autores, editoras e gêneros para exibir no formulário
-    autores = Autor.query.all()
-    editoras = Editora.query.all()
-    generos = Genero.query.all()
+    # Busca autores, editoras e gêneros para exibir no formulário
+    autores = db.session.query(Autor.aut_id, Autor.aut_nome).all()
+    editoras = db.session.query(Editora.edi_id, Editora.edi_nome).all()
+    generos = db.session.query(Genero.gen_id, Genero.gen_nome).all()
 
     return render_template('cadastro_livro.html', autores=autores, editoras=editoras, generos=generos)
 

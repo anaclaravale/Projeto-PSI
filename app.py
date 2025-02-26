@@ -21,6 +21,25 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+    # Verificar se o gerente já existe
+    gerente_existe = Gerente.query.filter_by(ger_codigo=9966).first()
+
+    if gerente_existe is None:
+        # Criando uma nova instância de Gerente
+        novo_gerente = Gerente(
+            ger_codigo=9966,
+            ger_nome="Marcos",
+            ger_telefone="3444427777",
+            ger_email="gerente@biblioteca.com",
+            ger_senha="$2b$12$QyfS1b2byE1HwzzSLIdH1uW6XogT9Z1WWK5S9iNqkTIgL04IVQ9u2"
+        )
+
+        # Adicionando à sessão e commitando
+        db.session.add(novo_gerente)
+        db.session.commit()
+    else:
+        print("Gerente já existe.")
+
 @login_manager.user_loader
 def load_user(user_id):
     return Cliente.query.get(int(user_id))  # Carrega o usuário pelo ID
@@ -110,7 +129,7 @@ def login_gerente():
             session['nome'] = gerente.ger_nome
             session['email'] = gerente.ger_email
 
-            return redirect(url_for('admin_dashboard') if gerente.ger_email == 'admin@biblioteca.com' else url_for('gerente_dashboard'))
+            return redirect(url_for('gerente_dashboard'))
 
         flash('Credenciais inválidas para gerente.', 'error')
 
@@ -121,6 +140,12 @@ def login_gerente():
 def cliente_dashboard():
     cliente = Cliente.query.get(current_user.cli_id)  # Usa current_user.cli_id
     return render_template('cliente_dashboard.html', cliente=cliente)
+
+@app.route('/gerente_dashboard')
+@login_required
+def gerente_dashboard():
+    gerente = Gerente.query.get(current_user.ger_id)  # Usa current_user.ger_id
+    return render_template('gerente_dashboard.html', gerente=gerente)
 
 @app.route('/editar', methods=['GET', 'POST'])
 @login_required

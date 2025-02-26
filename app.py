@@ -42,7 +42,17 @@ with app.app_context():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Cliente.query.get(int(user_id))  # Carrega o usuário pelo ID
+    # Tenta carregar um Cliente
+    cliente = Cliente.query.get(int(user_id))
+    if cliente:
+        return cliente
+
+    # Tenta carregar um Gerente
+    gerente = Gerente.query.get(int(user_id))
+    if gerente:
+        return gerente
+
+    return None  # Retorna None se nenhum usuário for encontrado
 
 def is_email_taken(email):
     return Cliente.query.filter_by(cli_email=email).first() is not None
@@ -54,14 +64,10 @@ def admin_required(f):
             flash("Por favor, realize o login como gerente.", "error")
             return redirect(url_for('login_gerente'))
 
-        if not session.get('gerente_id'):
-            flash("Permissões negadas", "error")
-            return redirect(url_for('login_cliente'))
-
         gerente = Gerente.query.filter_by(ger_email=session.get('email')).first()
-        if not gerente:
-            flash("Gerente não encontrado", "error")
-            return redirect(url_for('login_cliente'))
+        if not gerente or gerente.ger_email != 'gerente@biblioteca.com':
+            flash("Permissões negadas", "error")
+            return redirect(url_for('gerente_dashboard'))
 
         return f(*args, **kwargs)
     return decorated_function
@@ -124,6 +130,7 @@ def login_gerente():
 
         gerente = Gerente.query.filter_by(ger_email=email).first()
         if gerente and bcrypt.check_password_hash(gerente.ger_senha, senha):
+            login_user(gerente)  # Autentica o gerente
             session['logged_in'] = True
             session['gerente_id'] = gerente.ger_id
             session['nome'] = gerente.ger_nome
@@ -138,13 +145,20 @@ def login_gerente():
 @app.route('/cliente_dashboard')
 @login_required
 def cliente_dashboard():
-    cliente = Cliente.query.get(current_user.cli_id)  # Usa current_user.cli_id
+    if not isinstance(current_user, Cliente):
+        flash('Acesso negado.', 'error')
+        return redirect(url_for('index'))
+    cliente = Cliente.query.get(current_user.cli_id)
     return render_template('cliente_dashboard.html', cliente=cliente)
 
 @app.route('/gerente_dashboard')
 @login_required
 def gerente_dashboard():
-    gerente = Gerente.query.get(current_user.ger_id)  # Usa current_user.ger_id
+    if not isinstance(current_user, Gerente):
+        flash('Acesso negado.', 'error')
+        return redirect(url_for('index'))
+
+    gerente = Gerente.query.get(current_user.ger_id)
     return render_template('gerente_dashboard.html', gerente=gerente)
 
 @app.route('/editar', methods=['GET', 'POST'])
@@ -189,12 +203,6 @@ def excluir():
     return redirect(url_for('index'))
 
 
-@app.route('/admin_dashboard')
-@admin_required
-def admin_dashboard():
-    if session.get('email') != 'admin@biblioteca.com':
-        return redirect(url_for('gerente_dashboard'))
-    return render_template('admin_dashboard.html')
 
 @app.route('/adicionar_gerente', methods=['GET', 'POST'])
 @admin_required
@@ -224,6 +232,75 @@ def adicionar_gerente():
         return redirect(url_for('adicionar_gerente'))
 
     return render_template('admin_dashboard.html')
+
+@app.route('/cadastrar_autor', methods=['GET', 'POST'])
+def cadastrar_autor():
+    if request.method == 'POST':
+        nome = request.form.get('nome')
+
+        novo_autor = Autor(aut_nome=nome)
+
+        try:
+            db.session.add(novo_autor)
+            db.session.commit()
+            flash('Autor cadastrado com sucesso!', 'success')
+        except IntegrityError:
+            db.session.rollback()
+            flash('Erro ao cadastrar o autor: nome já existe.', 'error')
+
+        return redirect(url_for('cadastrar_autor'))
+
+    return render_template('cadastrar_autor.html')
+
+@app.route('/cadastrar_editora', methods=['GET', 'POST'])
+@admin_required
+def cadastrar_editora():
+    if request.method == 'POST':
+        nome = request.form.get('nome')
+
+        # Verifica se a editora já existe
+        if Editora.query.filter_by(edi_nome=nome).first():
+            flash('Editora já cadastrada.', 'error')
+            return redirect(url_for('cadastrar_editora'))
+
+        nova_editora = Editora(edi_nome=nome)
+
+        try:
+            db.session.add(nova_editora)
+            db.session.commit()
+            flash('Editora cadastrada com sucesso!', 'success')
+        except IntegrityError:
+            db.session.rollback()
+            flash('Erro ao cadastrar a editora.', 'error')
+
+        return redirect(url_for('cadastrar_editora'))
+
+    return render_template('cadastrar_editora.html')
+
+@app.route('/cadastrar_genero', methods=['GET', 'POST'])
+@admin_required
+def cadastrar_genero():
+    if request.method == 'POST':
+        nome = request.form.get('nome')
+
+        # Verifica se o gênero já existe
+        if Genero.query.filter_by(gen_nome=nome).first():
+            flash('Gênero já cadastrado.', 'error')
+            return redirect(url_for('cadastrar_genero'))
+
+        novo_genero = Genero(gen_nome=nome)
+
+        try:
+            db.session.add(novo_genero)
+            db.session.commit()
+            flash('Gênero cadastrado com sucesso!', 'success')
+        except IntegrityError:
+            db.session.rollback()
+            flash('Erro ao cadastrar o gênero.', 'error')
+
+        return redirect(url_for('cadastrar_genero'))
+
+    return render_template('cadastrar_genero.html')
 
 @app.route('/cadastrar_livro', methods=['GET', 'POST'])
 @admin_required
@@ -259,7 +336,7 @@ def cadastrar_livro():
             flash('Livro cadastrado com sucesso!', 'success')
         except IntegrityError:
             db.session.rollback()
-            flash('Erro ao cadastrar o livro: e-mail já existe.', 'error')
+            flash('Erro ao cadastrar o livro: ISBN ou título já existem.', 'error')
 
         return redirect(url_for('cadastrar_livro'))
 
@@ -329,6 +406,24 @@ def emprestimo():
 
     livros = Livro.query.join(Genero).join(Autor).all()
     return render_template('emprestimo.html', livros=livros)
+
+@app.route('/listar_livros')
+@admin_required
+def listar_livros():
+    livros = Livro.query.all()  # Busca todos os livros
+    return render_template('listar_livros.html', livros=livros)
+
+@app.route('/listar_clientes')
+@admin_required
+def listar_clientes():
+    clientes = Cliente.query.all()  # Busca todos os clientes
+    return render_template('listar_clientes.html', clientes=clientes)
+
+@app.route('/listar_emprestimos')
+@admin_required
+def listar_emprestimos():
+    emprestimos = Emprestimo.query.all()  # Busca todos os empréstimos
+    return render_template('listar_emprestimos.html', emprestimos=emprestimos)
 
 @app.route('/relatorio_emprestimos_cliente', methods=['GET', 'POST'])
 @admin_required

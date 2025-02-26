@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listar Empréstimos</title>
+</head>
+<body>
+    <h1>Lista de Empréstimos</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Data Início</th>
+                <th>Data Devolução</th>
+                <th>Total</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for emprestimo in emprestimos %}
+                <tr>
+                    <td>{{ emprestimo.emp_id }}</td>
+                    <td>{{ emprestimo.cliente.cli_nome }}</td>
+                    <td>{{ emprestimo.emp_data_ini.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ emprestimo.emp_dev.strftime('%d/%m/%Y') }}</td>
+                    <td>R$ {{ emprestimo.emp_total }}</td>
+                    <td>{{ emprestimo.emp_status }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('gerente_dashboard') }}">Voltar ao Painel</a>
+</body>
+</html>

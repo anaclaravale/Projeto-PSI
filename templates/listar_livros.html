@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listar Livros</title>
+</head>
+<body>
+    <h1>Lista de Livros</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Editora</th>
+                <th>Gênero</th>
+                <th>Estoque</th>
+                <th>Preço</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for livro in livros %}
+                <tr>
+                    <td>{{ livro.liv_id }}</td>
+                    <td>{{ livro.liv_titulo }}</td>
+                    <td>{{ livro.autor.aut_nome }}</td>
+                    <td>{{ livro.editora.edi_nome }}</td>
+                    <td>{{ livro.genero.gen_nome }}</td>
+                    <td>{{ livro.liv_estoque }}</td>
+                    <td>R$ {{ livro.liv_preco }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('gerente_dashboard') }}">Voltar ao Painel</a>
+</body>
+</html>

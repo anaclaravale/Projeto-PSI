@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Liter&family=Young+Serif&display=swap');
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #052c25;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 50px;
+    color: #f9f9f9;
+    font-family: "Young Serif", "Times New Roman" ;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30vw;
+    background: #b3dad9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    align-self: flex-start;
+    margin-bottom: 5px;
+    font-size: 24px;
+    font-family: "Liter", sans-serif;
+    color: black;
+}
+
+.email, .senha {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    font-size: 24px;
+    font-family: "Liter", sans-serif;
+}
+
+.enviar {
+    width: 100%;
+    padding: 10px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 24px;
+    font-family: "Liter", sans-serif;
+}
+
+.enviar:hover {
+    background-color: #0056b3;
+    font-size: 24px;
+    font-family: "Liter", sans-serif;
+}
+
+p {
+    margin-top: 15px;
+    color: #f9f9f9;
+    font-size: 20px;
+    font-family: "Liter", sans-serif;
+}
+
+p a {
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 20px;
+    font-family: "Liter", sans-serif;
+}
+
+p a:hover {
+    text-decoration: underline;
+}
+
+.flash-messages {
+    margin: 10px 0;
+    padding: 10px;
+}
+
+.flash-message {
+    padding: 10px;
+    border-radius: 14px;
+    font-family: "Liter", sans-serif;
+    font-size: 20px;
+    position: absolute;
+    top: 20vh;
+    right: 3vw;
+}
+
+.flash-message.success {
+    background-color: #44a047;
+    color:#f9f9f9;
+}
+
+.flash-message.warning {
+    background-color:#ffb300df;
+    color:#f9f9f9;
+}
+
+.flash-message.error {
+    background-color:#b92929;
+    color:#f9f9f9;
+}
+
+.btn-index {
+    text-decoration: none;
+    font-family: "Liter", sans-serif;
+    font-size: 20px;
+    color: #f9f9f9;
+    position: absolute;
+    top: 5vh;
+    left: 2vw;
+}

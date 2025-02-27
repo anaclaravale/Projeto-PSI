@@ -5,10 +5,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func, desc
 from functools import wraps
 from datetime import datetime, timedelta
-from models import db, Cliente, Gerente, Emprestimo, Livro, Autor, Editora, Genero, EmprestimoLivro
+from models import db, Cliente, Gerente, Emprestimo, Livro, Autor, Editora, Genero, EmprestimoLivro, Endereco
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teste.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///biblioteca.db'
 app.secret_key = 'muitodificil'
 
 bcrypt = Bcrypt(app)
@@ -84,6 +84,12 @@ def cadastro():
         senha = request.form.get('senha')
         telefone = request.form.get('telefone')
 
+        estado = request.form.get('estado')
+        cidade = request.form.get('cidade')
+        bairro = request.form.get('bairro')
+        rua = request.form.get('rua')
+        numero = request.form.get('numero')
+
         if Cliente.query.filter_by(cli_email=email).first():
             flash('Esse e-mail já está em uso. Por favor, escolha outro.', 'warning')
             return redirect(url_for('cadastro'))
@@ -92,7 +98,21 @@ def cadastro():
         novo_cliente = Cliente(cli_nome=nome, cli_email=email, cli_senha=hashed_senha, cli_telefone=telefone)
 
         db.session.add(novo_cliente)
+        db.session.commit()  # Confirma para obter o cli_id
+
+        # Salvar o endereço com o ID do cliente recém-criado
+        novo_endereco = Endereco(
+            end_cli_id=novo_cliente.cli_id,
+            end_estado=estado,
+            end_cidade=cidade,
+            end_bairro=bairro,
+            end_rua=rua,
+            end_numero=numero
+        )
+
+        db.session.add(novo_endereco)
         db.session.commit()
+
         flash('Cadastro realizado com sucesso! Você pode fazer login agora.', 'success')
         return redirect(url_for('login_cliente'))
 
@@ -115,11 +135,12 @@ def login_cliente():
             session['logged_in'] = True
             session['user_id'] = cliente.cli_id  # Define o user_id na sessão
             flash('Login realizado com sucesso!', 'success')
-            return redirect(url_for('cliente_dashboard'))
+            return redirect(url_for('cliente_dashboard'))  # Redireciona para o painel do cliente
         else:
             flash('E-mail ou senha inválidos.', 'error')
 
     return render_template('login_cliente.html')
+
 
 @app.route('/login_gerente', methods=['GET', 'POST'])
 def login_gerente():
@@ -131,7 +152,6 @@ def login_gerente():
         gerente = Gerente.query.filter_by(ger_email=email).first()
         if gerente and bcrypt.check_password_hash(gerente.ger_senha, senha):
             login_user(gerente)  # Autentica o gerente
-            session['logged_in'] = True
             session['gerente_id'] = gerente.ger_id
             session['nome'] = gerente.ger_nome
             session['email'] = gerente.ger_email
@@ -152,7 +172,7 @@ def cliente_dashboard():
     return render_template('cliente_dashboard.html', cliente=cliente)
 
 @app.route('/gerente_dashboard')
-@login_required
+@admin_required
 def gerente_dashboard():
     if not isinstance(current_user, Gerente):
         flash('Acesso negado.', 'error')
@@ -165,6 +185,7 @@ def gerente_dashboard():
 @login_required
 def editar():
     cliente = Cliente.query.get(current_user.cli_id)
+    endereco = Endereco.query.filter_by(end_cli_id=current_user.cli_id).first()
 
     if request.method == 'POST':
         nome = request.form.get('nome')
@@ -179,11 +200,29 @@ def editar():
         cliente.cli_email = email
         cliente.cli_telefone = telefone
 
+        if endereco:
+            endereco.end_estado = request.form.get('estado')
+            endereco.end_cidade = request.form.get('cidade')
+            endereco.end_bairro = request.form.get('bairro')
+            endereco.end_rua = request.form.get('rua')
+            endereco.end_numero = request.form.get('numero')
+        else:
+            endereco = Endereco(
+                end_cli_id=cliente.cli_id,
+                end_estado=request.form.get('estado'),
+                end_cidade=request.form.get('cidade'),
+                end_bairro=request.form.get('bairro'),
+                end_rua=request.form.get('rua'),
+                end_numero=request.form.get('numero')
+            )
+            db.session.add(endereco)
+
         db.session.commit()
         flash('Perfil atualizado com sucesso!', 'success')
         return redirect(url_for('cliente_dashboard'))
 
-    return render_template('editar.html', cliente=cliente)
+    return render_template('editar.html', cliente=cliente, endereco=endereco)
+
 
 @app.route('/excluir', methods=['POST'])
 @login_required
@@ -534,13 +573,6 @@ def devolver(emp_id):
 
     return redirect(url_for("gerenciar_emprestimos"))
 
-@app.route('/logout')
-def logout():
-    logout_user()
-    session.clear()
-    flash('Você foi desconectado.', 'success')
-    return redirect(url_for('login_cliente'))
-
 @app.route('/gerenciar_emprestimos')
 def gerenciar_emprestimos():
     if not session.get('logged_in') or not session.get('user_id'):
@@ -555,3 +587,10 @@ def gerenciar_emprestimos():
         emprestimos_com_livros.append({'emprestimo': emprestimo, 'livros': livros})
 
     return render_template('gerenciar_emprestimos.html', emprestimos=emprestimos_com_livros)
+
+@app.route('/logout')
+def logout():
+    logout_user()  # Faz logout do usuário atual
+    session.clear()  # Limpa a sessão
+    flash('Você foi desconectado.', 'success')
+    return redirect(url_for('login_cliente'))

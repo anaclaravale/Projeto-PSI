@@ -12,7 +12,7 @@
         <a href="editar">Editar</a>
         <a href="emprestimo">Novo Emprestimo</a>
         <a style="background-color: #052c25; color: white" href="{{ url_for('gerenciar_emprestimos' ) }}">Meus Empréstimos</a>
-        <a href="{{ url_for('index' ) }}">Sair</a>
+        <a href="{{ url_for('logout' ) }}">Sair</a>
     </nav>
     <h1>Meus Empréstimos</h1>
     {% for item in emprestimos %}

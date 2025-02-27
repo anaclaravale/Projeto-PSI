@@ -1,15 +1,26 @@
 from flask import Flask, render_template, redirect, request, url_for, flash, session
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func, desc
 from functools import wraps
 from datetime import datetime, timedelta
-from models import db, Cliente, Gerente, Emprestimo, Livro, Autor, Editora, Genero, EmprestimoLivro, Endereco
+from models.cliente import Cliente
+from models.autor import Autor
+from models.editora import Editora
+from models.emprestimo import Emprestimo
+from models.emprestimo_livro import EmprestimoLivro
+from models.endereco import Endereco
+from models.genero import Genero
+from models.gerente import Gerente
+from models.livro import Livro
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///biblioteca.db'
 app.secret_key = 'muitodificil'
+db = SQLAlchemy()
 
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)

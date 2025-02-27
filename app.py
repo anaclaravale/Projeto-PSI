@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, request, url_for, flash, session
-from flask_bcrypt import Bcrypt
+from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
@@ -24,7 +24,8 @@ db = SQLAlchemy()
 
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
-login_manager.login_view = 'login_cliente'
+login_manager.login_view = 'login'
+app.permanent_session_lifetime = timedelta(minutes=30)  # Sessão expira após 30 minutos
 
 # Inicializa o banco de dados
 db.init_app(app)
@@ -73,7 +74,7 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in'):
             flash("Por favor, realize o login como gerente.", "error")
-            return redirect(url_for('login_gerente'))
+            return redirect(url_for('login'))
 
         gerente = Gerente.query.filter_by(ger_email=session.get('email')).first()
         if not gerente or gerente.ger_email != 'gerente@biblioteca.com':
@@ -125,72 +126,63 @@ def cadastro():
         db.session.commit()
 
         flash('Cadastro realizado com sucesso! Você pode fazer login agora.', 'success')
-        return redirect(url_for('login_cliente'))
+        return redirect(url_for('login'))
 
     return render_template('cadastro.html')
 
-@app.route('/login_cliente', methods=['GET', 'POST'])
-def login_cliente():
+@app.route('/login', methods=['GET', 'POST'])
+def login():
     if request.method == 'POST':
         email = request.form.get('email')
         senha = request.form.get('senha')
-
-        if not email or not senha:
-            flash('Por favor, preencha todos os campos.', 'error')
-            return redirect(url_for('login_cliente'))
-
-        cliente = Cliente.query.filter_by(cli_email=email).first()
-
-        if cliente and bcrypt.check_password_hash(cliente.cli_senha, senha):
-            login_user(cliente)
-            session['logged_in'] = True
-            session['user_id'] = cliente.cli_id  # Define o user_id na sessão
-            flash('Login realizado com sucesso!', 'success')
-            return redirect(url_for('cliente_dashboard'))  # Redireciona para o painel do cliente
-        else:
-            flash('E-mail ou senha inválidos.', 'error')
-
-    return render_template('login_cliente.html')
-
-
-@app.route('/login_gerente', methods=['GET', 'POST'])
-def login_gerente():
-    session.clear()
-    if request.method == 'POST':
-        email = request.form.get('email')
-        senha = request.form.get('senha')
-
+        
+        session.clear()
+        session.permanent = True
+        
         gerente = Gerente.query.filter_by(ger_email=email).first()
-        if gerente and bcrypt.check_password_hash(gerente.ger_senha, senha):
-            login_user(gerente)  # Autentica o gerente
-            session['gerente_id'] = gerente.ger_id
-            session['nome'] = gerente.ger_nome
-            session['email'] = gerente.ger_email
-
+        cliente = Cliente.query.filter_by(cli_email=email).first()
+        
+        if gerente and check_password_hash(gerente.ger_senha, senha):
+            login_user(gerente)
+            session['user_id'] = gerente.ger_id
+            session['user_type'] = 'gerente'
+            print(f"DEBUG: user_type definido como {session.get('user_type')}")
+            flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('gerente_dashboard'))
+        
+        elif cliente and check_password_hash(cliente.cli_senha, senha):
+            login_user(cliente)
+            session['user_id'] = cliente.cli_id
+            session['user_type'] = 'cliente'
+            print(f"DEBUG: user_type definido como {session.get('user_type')}")
+            flash('Login realizado com sucesso!', 'success')
+            return redirect(url_for('cliente_dashboard'))
+        
+        else:
+            flash('Email ou senha incorretos.', 'danger')
+    return render_template('login.html')
 
-        flash('Credenciais inválidas para gerente.', 'error')
-
-    return render_template('login_gerente.html')
+@app.route('/gerente_dashboard')
+@login_required
+def gerente_dashboard():
+    session['user_type'] = session.get('user_type', 'desconhecido')
+    print(f"DEBUG: user_type na rota = {session.get('user_type')}")
+    
+    if session.get('user_type') != 'gerente':
+        flash('Acesso negado!', 'error')
+        return redirect(url_for('login'))
+    
+    return render_template('gerente_dashboard.html')
 
 @app.route('/cliente_dashboard')
 @login_required
 def cliente_dashboard():
-    if not isinstance(current_user, Cliente):
+    if session.get('user_type') != 'cliente':  # Verifica se o usuário é um cliente
         flash('Acesso negado.', 'error')
         return redirect(url_for('index'))
+
     cliente = Cliente.query.get(current_user.cli_id)
     return render_template('cliente_dashboard.html', cliente=cliente)
-
-@app.route('/gerente_dashboard')
-@admin_required
-def gerente_dashboard():
-    if not isinstance(current_user, Gerente):
-        flash('Acesso negado.', 'error')
-        return redirect(url_for('index'))
-
-    gerente = Gerente.query.get(current_user.ger_id)
-    return render_template('gerente_dashboard.html', gerente=gerente)
 
 @app.route('/editar', methods=['GET', 'POST'])
 @login_required
@@ -435,7 +427,7 @@ def cadastrar_livro():
 def emprestimo():
     if not session.get('logged_in'):
         flash('Você precisa estar logado para acessar esta página.', 'danger')
-        return redirect(url_for('login_cliente'))
+        return redirect(url_for('login'))
 
     if request.method == 'POST':
         duracao_dias = int(request.form.get('duracao', 0))
@@ -587,7 +579,7 @@ def devolver(emp_id):
 @app.route('/gerenciar_emprestimos')
 def gerenciar_emprestimos():
     if not session.get('logged_in') or not session.get('user_id'):
-        return redirect(url_for('login_cliente'))
+        return redirect(url_for('login'))
     
     user_id = session['user_id']
     emprestimos = Emprestimo.query.filter_by(emp_cli_id=user_id).order_by(Emprestimo.emp_data_ini.asc()).all()
@@ -602,6 +594,6 @@ def gerenciar_emprestimos():
 @app.route('/logout')
 def logout():
     logout_user()  # Faz logout do usuário atual
-    session.clear()  # Limpa a sessão
+    session.clear()  # Limpa todos os dados da sessão
     flash('Você foi desconectado.', 'success')
-    return redirect(url_for('login_cliente'))
+    return redirect(url_for('login'))

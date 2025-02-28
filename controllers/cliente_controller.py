@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for, flash, session
+from flask import Flask, render_template, redirect, request, url_for, flash, session, Blueprint
 from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -17,7 +17,9 @@ from models.gerente import Gerente
 from models.livro import Livro
 from app import app, db
 
-@app.route('/cliente_dashboard')
+cliente_bp = Blueprint('cliente', __name__)
+
+@cliente_bp.route('/cliente_dashboard')
 @login_required
 def cliente_dashboard():
     if session.get('user_type') != 'cliente':  # Verifica se o usuário é um cliente
@@ -27,7 +29,7 @@ def cliente_dashboard():
     cliente = Cliente.query.get(current_user.cli_id)
     return render_template('cliente_dashboard.html', cliente=cliente)
 
-@app.route('/editar', methods=['GET', 'POST'])
+@cliente_bp.route('/editar', methods=['GET', 'POST'])
 @login_required
 def editar():
     cliente = Cliente.query.get(current_user.cli_id)
@@ -69,7 +71,7 @@ def editar():
 
     return render_template('editar.html', cliente=cliente, endereco=endereco)
 
-@app.route('/excluir', methods=['POST'])
+@cliente_bp.route('/excluir', methods=['POST'])
 @login_required
 def excluir():
     cliente = Cliente.query.get(current_user.cli_id)

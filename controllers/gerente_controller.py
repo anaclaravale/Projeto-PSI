@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for, flash, session
+from flask import Flask, render_template, redirect, request, url_for, flash, session, Blueprint
 from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -17,6 +17,8 @@ from models.gerente import Gerente
 from models.livro import Livro
 from app import app, db, bcrypt
 
+gerente_bp = Blueprint('gerente', __name__)
+
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -32,7 +34,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-@app.route('/gerente_dashboard')
+@gerente_bp.route('/gerente_dashboard')
 @login_required
 def gerente_dashboard():
     session['user_type'] = session.get('user_type', 'desconhecido')
@@ -44,7 +46,7 @@ def gerente_dashboard():
     
     return render_template('gerente_dashboard.html')
 
-@app.route('/adicionar_gerente', methods=['GET', 'POST'])
+@gerente_bp.route('/adicionar_gerente', methods=['GET', 'POST'])
 @admin_required
 def adicionar_gerente():
     if request.method == 'POST':
@@ -73,25 +75,25 @@ def adicionar_gerente():
 
     return render_template('admin_dashboard.html')
 
-@app.route('/listar_clientes')
+@gerente_bp.route('/listar_clientes')
 @admin_required
 def listar_clientes():
     clientes = Cliente.query.all()  # Busca todos os clientes
     return render_template('listar_clientes.html', clientes=clientes)
 
-@app.route('/listar_livros')
+@gerente_bp.route('/listar_livros')
 @admin_required
 def listar_livros():
     livros = Livro.query.all()  # Busca todos os livros
     return render_template('listar_livros.html', livros=livros)
 
-@app.route('/listar_emprestimos')
+@gerente_bp.route('/listar_emprestimos')
 @admin_required
 def listar_emprestimos():
     emprestimos = Emprestimo.query.all()  # Busca todos os empréstimos
     return render_template('listar_emprestimos.html', emprestimos=emprestimos)
 
-@app.route('/relatorio_emprestimos_cliente', methods=['GET', 'POST'])
+@gerente_bp.route('/relatorio_emprestimos_cliente', methods=['GET', 'POST'])
 @admin_required
 def relatorio_emprestimos_cliente():
     relatorio = None
@@ -109,7 +111,7 @@ def relatorio_emprestimos_cliente():
 
     return render_template('relatorio_emprestimos_cliente.html', relatorio=relatorio)
 
-@app.route('/clientes_acima_cem', methods=['GET', 'POST'])
+@gerente_bp.route('/clientes_acima_cem', methods=['GET', 'POST'])
 @admin_required
 def clientes_acima_cem():
     clientes = None
@@ -126,7 +128,7 @@ def clientes_acima_cem():
 
     return render_template('clientes_acima_cem.html', clientes=clientes)
 
-@app.route('/top_livros', methods=['GET'])
+@gerente_bp.route('/top_livros', methods=['GET'])
 @admin_required
 def top_livros():
     dias = request.args.get('dias', 30)
@@ -140,7 +142,7 @@ def top_livros():
 
     return render_template('top_livros.html', top_livros=top_livros, dias=dias)
 
-@app.route('/livros_nao_emprestados', methods=['GET'])
+@gerente_bp.route('/livros_nao_emprestados', methods=['GET'])
 @admin_required
 def livros_nao_emprestados():
     livros_nao_emprestados = Livro.query.filter(Livro.liv_estoque > 0).all()

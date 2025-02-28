@@ -15,7 +15,15 @@ from models.endereco import Endereco
 from models.genero import Genero
 from models.gerente import Gerente
 from models.livro import Livro
-from controllers import auth_controller, autor_controller, cliente_controller, editora_controller, emprestimo_controller, genero_controller, gerente_controller, livro_controller
+from controllers.auth_controller import auth_bp
+from controllers.autor_controller import autor_bp
+from controllers.cliente_controller import cliente_bp
+from controllers.editora_controller import editora_bp
+from controllers.emprestimo_controller import emprestimo_bp
+from controllers.genero_controller import genero_bp
+from controllers.gerente_controller import gerente_bp
+from controllers.livro_controller import livro_bp
+
 
 
 
@@ -28,6 +36,15 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 app.permanent_session_lifetime = timedelta(minutes=30)  # Sessão expira após 30 minutos
+
+app.register_blueprint(auth_bp)
+app.register_blueprint(autor_bp)
+app.register_blueprint(cliente_bp)
+app.register_blueprint(editora_bp)
+app.register_blueprint(emprestimo_bp)
+app.register_blueprint(genero_bp)
+app.register_blueprint(gerente_bp)
+app.register_blueprint(livro_bp)
 
 # Inicializa o banco de dados
 db.init_app(app)

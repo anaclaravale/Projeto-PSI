@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for, flash, session
+from flask import Flask, render_template, redirect, request, url_for, flash, session, Blueprint
 from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -17,7 +17,9 @@ from models.gerente import Gerente
 from models.livro import Livro
 from app import app, db
 
-@app.route('/gerenciar_emprestimos')
+emprestimo_bp = Blueprint('emprestimo', __name__)
+
+@emprestimo_bp.route('/gerenciar_emprestimos')
 def gerenciar_emprestimos():
     if not session.get('logged_in') or not session.get('user_id'):
         return redirect(url_for('login'))
@@ -32,7 +34,7 @@ def gerenciar_emprestimos():
 
     return render_template('gerenciar_emprestimos.html', emprestimos=emprestimos_com_livros)
 
-@app.route("/devolver/<int:emp_id>", methods=["POST"])
+@emprestimo_bp.route("/devolver/<int:emp_id>", methods=["POST"])
 def devolver(emp_id):
     emprestimo = Emprestimo.query.filter_by(emp_id=emp_id, emp_cli_id=session['user_id']).first()
 

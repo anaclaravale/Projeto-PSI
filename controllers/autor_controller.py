@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for, flash, session
+from flask import Flask, render_template, redirect, request, url_for, flash, session, Blueprint
 from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -6,6 +6,8 @@ from functools import wraps
 from models.autor import Autor
 from models.gerente import Gerente
 from app import app, db
+
+autor_bp = Blueprint('autor', __name__)
 
 def admin_required(f):
     @wraps(f)
@@ -22,7 +24,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-@app.route('/cadastrar_autor', methods=['GET', 'POST'])
+@autor_bp.route('/cadastrar_autor', methods=['GET', 'POST'])
 @admin_required
 def cadastrar_autor():
     if request.method == 'POST':

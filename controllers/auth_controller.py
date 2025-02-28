@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for, flash, session
+from flask import Flask, render_template, redirect, request, url_for, flash, session, Blueprint
 from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -7,7 +7,9 @@ from models.gerente import Gerente
 from models.endereco import Endereco
 from app import app, db, bcrypt
 
-@app.route('/login', methods=['GET', 'POST'])
+auth_bp = Blueprint('auth', __name__)
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -39,7 +41,7 @@ def login():
             flash('Email ou senha incorretos.', 'danger')
     return render_template('login.html')
 
-@app.route('/cadastro', methods=['GET', 'POST'])
+@auth_bp.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
     if request.method == 'POST':
         nome = request.form.get('nome')
@@ -81,7 +83,7 @@ def cadastro():
 
     return render_template('cadastro.html')
 
-@app.route('/logout')
+@auth_bp.route('/logout')
 def logout():
     logout_user()  # Faz logout do usuário atual
     session.clear()  # Limpa todos os dados da sessão

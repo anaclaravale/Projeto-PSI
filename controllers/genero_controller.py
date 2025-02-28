@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for, flash, session
+from flask import Flask, render_template, redirect, request, url_for, flash, session, Blueprint
 from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -17,6 +17,8 @@ from models.gerente import Gerente
 from models.livro import Livro
 from app import app, db
 
+genero_bp = Blueprint('genero', __name__)
+
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -32,7 +34,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-@app.route('/cadastrar_genero', methods=['GET', 'POST'])
+@genero_bp.route('/cadastrar_genero', methods=['GET', 'POST'])
 @admin_required
 def cadastrar_genero():
     if request.method == 'POST':

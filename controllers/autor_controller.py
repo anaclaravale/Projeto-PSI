@@ -1,11 +1,8 @@
 from flask import Flask, render_template, redirect, request, url_for, flash, session, Blueprint
-from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 from models.autor import Autor
 from models.gerente import Gerente
-from app import app, db
+from app import db
 
 autor_bp = Blueprint('autor', __name__)
 

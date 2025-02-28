@@ -1,23 +1,13 @@
 from flask import Flask, render_template, redirect, request, url_for, flash, session, Blueprint
-from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import func, desc
-from functools import wraps
-from datetime import datetime, timedelta
+from flask_login import logout_user, login_required, current_user
 from models.cliente import Cliente
-from models.autor import Autor
-from models.editora import Editora
-from models.emprestimo import Emprestimo
-from models.emprestimo_livro import EmprestimoLivro
 from models.endereco import Endereco
-from models.genero import Genero
-from models.gerente import Gerente
-from models.livro import Livro
-from app import app, db
+from app import db
 
 cliente_bp = Blueprint('cliente', __name__)
+
+def is_email_taken(email):
+    return Cliente.query.filter_by(cli_email=email).first() is not None
 
 @cliente_bp.route('/cliente_dashboard')
 @login_required
@@ -42,7 +32,7 @@ def editar():
 
         if email != cliente.cli_email and is_email_taken(email):
             flash('Este e-mail já está em uso.', 'warning')
-            return redirect(url_for('editar'))
+            return redirect(url_for('cliente.editar'))
 
         cliente.cli_nome = nome
         cliente.cli_email = email

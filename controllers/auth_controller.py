@@ -1,11 +1,10 @@
 from flask import Flask, render_template, redirect, request, url_for, flash, session, Blueprint
-from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import check_password_hash
+from flask_login import login_user, logout_user
 from models.cliente import Cliente
 from models.gerente import Gerente
 from models.endereco import Endereco
-from app import app, db, bcrypt
+from app import db, bcrypt
 
 auth_bp = Blueprint('auth', __name__)
 

@@ -15,7 +15,7 @@ from models.endereco import Endereco
 from models.genero import Genero
 from models.gerente import Gerente
 from models.livro import Livro
-from app import app, db
+from app import db
 
 emprestimo_bp = Blueprint('emprestimo', __name__)
 

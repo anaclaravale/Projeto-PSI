@@ -1,21 +1,16 @@
 from flask import Flask, render_template, redirect, request, url_for, flash, session, Blueprint
-from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from flask_sqlalchemy import SQLAlchemy
+from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import func, desc
 from functools import wraps
 from datetime import datetime, timedelta
-from models.cliente import Cliente
 from models.autor import Autor
 from models.editora import Editora
 from models.emprestimo import Emprestimo
 from models.emprestimo_livro import EmprestimoLivro
-from models.endereco import Endereco
 from models.genero import Genero
 from models.gerente import Gerente
 from models.livro import Livro
-from app import app, db
+from app import db
 
 livro_bp = Blueprint('livro', __name__)
 

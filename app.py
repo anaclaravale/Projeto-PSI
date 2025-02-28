@@ -1,11 +1,8 @@
-from flask import Flask, render_template, redirect, request, url_for, flash, session
-from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask import Flask, render_template
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import func, desc
-from functools import wraps
-from datetime import datetime, timedelta
+from datetime import timedelta
 from models.cliente import Cliente
 from models.autor import Autor
 from models.editora import Editora
@@ -85,8 +82,7 @@ def load_user(user_id):
 
     return None  # Retorna None se nenhum usuário for encontrado
 
-def is_email_taken(email):
-    return Cliente.query.filter_by(cli_email=email).first() is not None
+
 
 
 

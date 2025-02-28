@@ -15,14 +15,14 @@ from models.endereco import Endereco
 from models.genero import Genero
 from models.gerente import Gerente
 from models.livro import Livro
-from app import db
+from extensoes import db
 
 emprestimo_bp = Blueprint('emprestimo', __name__)
 
 @emprestimo_bp.route('/gerenciar_emprestimos')
 def gerenciar_emprestimos():
     if not session.get('logged_in') or not session.get('user_id'):
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
     
     user_id = session['user_id']
     emprestimos = Emprestimo.query.filter_by(emp_cli_id=user_id).order_by(Emprestimo.emp_data_ini.asc()).all()
@@ -39,7 +39,7 @@ def devolver(emp_id):
     emprestimo = Emprestimo.query.filter_by(emp_id=emp_id, emp_cli_id=session['user_id']).first()
 
     if not emprestimo or emprestimo.emp_status == 'Finalizado':
-        return redirect(url_for("gerenciar_emprestimos"))
+        return redirect(url_for("emprestimo.gerenciar_emprestimos"))
 
     livros = EmprestimoLivro.query.filter_by(eml_emp_id=emp_id).all()
 
@@ -52,4 +52,4 @@ def devolver(emp_id):
     db.session.commit()
     flash("Empréstimo devolvido com sucesso!", "success")
 
-    return redirect(url_for("gerenciar_emprestimos"))
+    return redirect(url_for("emprestimo.gerenciar_emprestimos"))

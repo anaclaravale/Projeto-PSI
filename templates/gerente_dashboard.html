@@ -12,27 +12,27 @@
             <div id="atividades">
                 <h1> O que você deseja fazer hoje?</h1>
                 <ul>
-                    <li><a href="{{ url_for('cadastrar_livro') }}">Cadastrar Livro</a></li>
-                    <li><a href="{{ url_for('cadastrar_autor') }}">Cadastrar Autor</a></li>
-                    <li><a href="{{ url_for('cadastrar_editora') }}">Cadastrar Editora</a></li>
-                    <li><a href="{{ url_for('cadastrar_genero') }}">Cadastrar Gênero</a></li>
-                    <li><a href="{{ url_for('logout') }}">Fazer Logout</a></li>
+                    <li><a href="{{ url_for('livro.cadastrar_livro') }}">Cadastrar Livro</a></li>
+                    <li><a href="{{ url_for('autor.cadastrar_autor') }}">Cadastrar Autor</a></li>
+                    <li><a href="{{ url_for('editora.cadastrar_editora') }}">Cadastrar Editora</a></li>
+                    <li><a href="{{ url_for('genero.cadastrar_genero') }}">Cadastrar Gênero</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}">Fazer Logout</a></li>
                 </ul>
             </div>
             <div id="filtros" style="height: 120vh;">
                 <h2>Filtros</h2>
                 <ul style="height: 30%;">
-                    <li><a href="{{ url_for('listar_livros') }}">Listar Livros</a></li>
-                    <li><a href="{{ url_for('listar_clientes') }}">Listar Clientes</a></li>
-                    <li><a href="{{ url_for('listar_emprestimos') }}">Listar Empréstimos</a></li>
-                    <li><a href="{{ url_for('top_livros') }}">Top Livros Pedidos</a></li>
-                    <li><a href="{{ url_for('livros_nao_emprestados') }}">Livros Não Emprestados</a></li>
-                    <li><a href="{{ url_for('relatorio_emprestimos_cliente') }}">Total de Empréstimos por Cliente</a></li>
-                    <li><a href="{{ url_for('clientes_acima_cem') }}">Clientes Acima de R$100</a></li>
+                    <li><a href="{{ url_for('gerente.listar_livros') }}">Listar Livros</a></li>
+                    <li><a href="{{ url_for('gerente.listar_clientes') }}">Listar Clientes</a></li>
+                    <li><a href="{{ url_for('gerente.listar_emprestimos') }}">Listar Empréstimos</a></li>
+                    <li><a href="{{ url_for('gerente.top_livros') }}">Top Livros Pedidos</a></li>
+                    <li><a href="{{ url_for('gerente.livros_nao_emprestados') }}">Livros Não Emprestados</a></li>
+                    <li><a href="{{ url_for('gerente.relatorio_emprestimos_cliente') }}">Total de Empréstimos por Cliente</a></li>
+                    <li><a href="{{ url_for('gerente.clientes_acima_cem') }}">Clientes Acima de R$100</a></li>
                 </ul>
             </div>
 
-            <form action="{{ url_for('logout') }}" method="get" id="sair">
+            <form action="{{ url_for('auth.logout') }}" method="get" id="sair">
                 <button id="but_sair" type="submit">Fazer Logout</button>
             </form>
         </div>

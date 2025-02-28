@@ -11,15 +11,15 @@
         <a href="cliente_dashboard">Início</a>
         <a style="background-color: #052c25; color: white" href="editar">Editar</a>
         <a href="emprestimo">Novo Emprestimo</a>
-        <a href="{{ url_for('gerenciar_emprestimos' ) }}">Meus Empréstimos</a>
-        <a href="{{ url_for('logout') }}">Fazer Logout</a>
+        <a href="{{ url_for('emprestimo.gerenciar_emprestimos' ) }}">Meus Empréstimos</a>
+        <a href="{{ url_for('auth.logout') }}">Fazer Logout</a>
     </nav>
     <main class="Cadastro">
         <div class="cad_titulo">
             <h1>Editar</h1>
         </div>
         <div class="formulario">
-            <form action="{{ url_for('editar') }}" method="post" id="editar_info">
+            <form action="{{ url_for('cliente.editar') }}" method="post" id="editar_info">
                 <label for="nome">Nome:</label>
                 <input type="text" id="nome" name="nome" value="{{ cliente.cli_nome }}">
         
@@ -58,7 +58,7 @@
                 <button type="submit">Salvar Alterações</button>
             </form>
             
-            <form id='excluir' action="{{ url_for('excluir') }}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir sua conta?')">
+            <form id='excluir' action="{{ url_for('cliente.excluir') }}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir sua conta?')">
                 <button type="submit"><img src="{{url_for('static', filename='images/trash-icon.png') }}" alt="ícone de lixeira"></button>
             </form>
         </div>

@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from functools import wraps
 from models.editora import Editora
 from models.gerente import Gerente
-from app import db
+from extensoes import db
 
 editora_bp = Blueprint('editora', __name__)
 

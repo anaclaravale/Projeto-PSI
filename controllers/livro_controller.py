@@ -10,7 +10,7 @@ from models.emprestimo_livro import EmprestimoLivro
 from models.genero import Genero
 from models.gerente import Gerente
 from models.livro import Livro
-from app import db
+from extensoes import db
 
 livro_bp = Blueprint('livro', __name__)
 
@@ -19,7 +19,7 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in'):
             flash("Por favor, realize o login como gerente.", "error")
-            return redirect(url_for('login'))
+            return redirect(url_for('auth.login'))
 
         gerente = Gerente.query.filter_by(ger_email=session.get('email')).first()
         if not gerente or gerente.ger_email != 'gerente@biblioteca.com':
@@ -100,7 +100,7 @@ def cadastrar_livro():
 def emprestimo():
     if not session.get('logged_in'):
         flash('Você precisa estar logado para acessar esta página.', 'danger')
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
 
     if request.method == 'POST':
         duracao_dias = int(request.form.get('duracao', 0))
@@ -151,7 +151,7 @@ def emprestimo():
 
         db.session.commit()
         flash('Empréstimo realizado com sucesso!', 'success')
-        return redirect('/gerenciar_emprestimos')
+        return redirect('/emprestimo.gerenciar_emprestimos')
 
     livros = Livro.query.join(Genero).join(Autor).all()
     return render_template('emprestimo.html', livros=livros)

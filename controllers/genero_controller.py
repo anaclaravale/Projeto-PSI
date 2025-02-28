@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from functools import wraps
 from models.genero import Genero
 from models.gerente import Gerente
-from app import db
+from extensoes import db
 
 genero_bp = Blueprint('genero', __name__)
 

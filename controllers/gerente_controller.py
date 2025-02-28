@@ -9,7 +9,8 @@ from models.emprestimo import Emprestimo
 from models.emprestimo_livro import EmprestimoLivro
 from models.gerente import Gerente
 from models.livro import Livro
-from app import db, bcrypt
+from extensoes import bcrypt
+from extensoes import db
 
 gerente_bp = Blueprint('gerente', __name__)
 

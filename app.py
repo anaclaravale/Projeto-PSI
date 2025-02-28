@@ -1,17 +1,11 @@
 from flask import Flask, render_template
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
+from extensoes import db
+from extensoes import Bcrypt
 from datetime import timedelta
 from models.cliente import Cliente
-from models.autor import Autor
-from models.editora import Editora
-from models.emprestimo import Emprestimo
-from models.emprestimo_livro import EmprestimoLivro
-from models.endereco import Endereco
-from models.genero import Genero
 from models.gerente import Gerente
-from models.livro import Livro
 from controllers.auth_controller import auth_bp
 from controllers.autor_controller import autor_bp
 from controllers.cliente_controller import cliente_bp
@@ -22,12 +16,9 @@ from controllers.gerente_controller import gerente_bp
 from controllers.livro_controller import livro_bp
 
 
-
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///biblioteca.db'
 app.secret_key = 'muitodificil'
-db = SQLAlchemy()
 
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)

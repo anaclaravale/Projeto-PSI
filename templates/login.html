@@ -10,7 +10,7 @@
 
     <h1>Login de Usuários</h1>
 
-    <form action="{{ url_for('login') }}" method="post">
+    <form action="{{ url_for('auth.login') }}" method="post">
         <label for="email">Email:</label>
         <input class="email" type="email" id="email" name="email" placeholder="Digite seu email" required>
 
@@ -20,7 +20,7 @@
         <input class="enviar" type="submit" value="Entrar">
     </form>
 
-    <p>Não possui uma conta? <a href="{{ url_for('cadastro') }}">Cadastre-se aqui</a>.</p>
+    <p>Não possui uma conta? <a href="{{ url_for('auth.cadastro') }}">Cadastre-se aqui</a>.</p>
 
     <a href="{{url_for('index')}}" class="btn-index">&#x2190; Voltar para a Página Inicial</a>
 

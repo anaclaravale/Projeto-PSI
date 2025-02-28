@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, request, url_for, flash, ses
 from flask_login import logout_user, login_required, current_user
 from models.cliente import Cliente
 from models.endereco import Endereco
-from app import db
+from extensoes import db
 
 cliente_bp = Blueprint('cliente', __name__)
 
@@ -57,7 +57,7 @@ def editar():
 
         db.session.commit()
         flash('Perfil atualizado com sucesso!', 'success')
-        return redirect(url_for('cliente_dashboard'))
+        return redirect(url_for('cliente.cliente_dashboard'))
 
     return render_template('editar.html', cliente=cliente, endereco=endereco)
 

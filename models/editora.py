@@ -1,4 +1,4 @@
-from app import db
+from extensoes import db
 
 class Editora(db.Model):
     __tablename__ = 'tb_editora'

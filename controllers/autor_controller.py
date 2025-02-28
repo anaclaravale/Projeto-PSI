@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, request, url_for, flash, ses
 from functools import wraps
 from models.autor import Autor
 from models.gerente import Gerente
-from app import db
+from extensoes import db
 
 autor_bp = Blueprint('autor', __name__)
 
@@ -11,12 +11,12 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in'):
             flash("Por favor, realize o login como gerente.", "error")
-            return redirect(url_for('login'))
+            return redirect(url_for('auth.login'))
 
         gerente = Gerente.query.filter_by(ger_email=session.get('email')).first()
         if not gerente or gerente.ger_email != 'gerente@biblioteca.com':
             flash("Permissões negadas", "error")
-            return redirect(url_for('gerente_dashboard'))
+            return redirect(url_for('gerente.gerente_dashboard'))
 
         return f(*args, **kwargs)
     return decorated_function
@@ -29,7 +29,7 @@ def cadastrar_autor():
 
         if not nome:
             flash('O nome do autor é obrigatório.', 'error')
-            return redirect(url_for('cadastrar_autor'))
+            return redirect(url_for('autor.cadastrar_autor'))
 
         # Verifica se o autor já existe
         autor_existente = Autor.query.filter_by(aut_nome=nome).first()
@@ -48,6 +48,6 @@ def cadastrar_autor():
             db.session.rollback()
             flash(f'Erro ao cadastrar o autor: {str(e)}', 'error')
 
-        return redirect(url_for('cadastrar_autor'))
+        return redirect(url_for('autor.cadastrar_autor'))
 
     return render_template('cadastrar_autor.html')

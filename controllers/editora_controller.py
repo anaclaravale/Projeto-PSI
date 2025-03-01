@@ -12,7 +12,7 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in'):
             flash("Por favor, realize o login como gerente.", "error")
-            return redirect(url_for('login'))
+            return redirect(url_for('auth.login'))
 
         gerente = Gerente.query.filter_by(ger_email=session.get('email')).first()
         if not gerente or gerente.ger_email != 'gerente@biblioteca.com':
@@ -21,6 +21,7 @@ def admin_required(f):
 
         return f(*args, **kwargs)
     return decorated_function
+
 
 @editora_bp.route('/cadastrar_editora', methods=['GET', 'POST'])
 @admin_required
@@ -43,6 +44,6 @@ def cadastrar_editora():
             db.session.rollback()
             flash('Erro ao cadastrar a editora.', 'error')
 
-        return redirect(url_for('cadastrar_editora'))
+        return redirect(url_for('editora.cadastrar_editora'))
 
     return render_template('cadastrar_editora.html')

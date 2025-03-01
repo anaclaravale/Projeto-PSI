@@ -24,7 +24,10 @@ def login():
         if gerente and check_password_hash(gerente.ger_senha, senha):
             login_user(gerente)
             session['user_id'] = gerente.ger_id
+            session["email"] = gerente.ger_email
+            session["gerente_id"] = gerente.ger_id
             session['user_type'] = 'gerente'
+            session["logged_in"] = True
             print(f"DEBUG: user_type definido como {session.get('user_type')}")
             flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('gerente.gerente_dashboard'))
@@ -33,6 +36,7 @@ def login():
             login_user(cliente)
             session['user_id'] = cliente.cli_id
             session['user_type'] = 'cliente'
+            session["logged_in"] = True
             print(f"DEBUG: user_type definido como {session.get('user_type')}")
             flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('cliente.cliente_dashboard'))

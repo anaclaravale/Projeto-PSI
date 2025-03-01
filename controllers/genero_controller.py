@@ -12,7 +12,7 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in'):
             flash("Por favor, realize o login como gerente.", "error")
-            return redirect(url_for('login'))
+            return redirect(url_for('auth.login'))
 
         gerente = Gerente.query.filter_by(ger_email=session.get('email')).first()
         if not gerente or gerente.ger_email != 'gerente@biblioteca.com':
@@ -31,7 +31,7 @@ def cadastrar_genero():
         # Verifica se o gênero já existe
         if Genero.query.filter_by(gen_nome=nome).first():
             flash('Gênero já cadastrado.', 'error')
-            return redirect(url_for('cadastrar_genero'))
+            return redirect(url_for('genero.cadastrar_genero'))
 
         novo_genero = Genero(gen_nome=nome)
 
@@ -43,6 +43,6 @@ def cadastrar_genero():
             db.session.rollback()
             flash('Erro ao cadastrar o gênero.', 'error')
 
-        return redirect(url_for('cadastrar_genero'))
+        return redirect(url_for('genero.cadastrar_genero'))
 
     return render_template('cadastrar_genero.html')

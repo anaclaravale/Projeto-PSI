@@ -22,7 +22,7 @@ app.secret_key = 'muitodificil'
 
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'auth.login'
 app.permanent_session_lifetime = timedelta(minutes=30)  # Sessão expira após 30 minutos
 
 app.register_blueprint(auth_bp)

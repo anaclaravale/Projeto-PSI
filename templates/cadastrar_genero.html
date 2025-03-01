@@ -19,7 +19,7 @@
             <h1>Gênero</h1>
         </div>
         <div class="formulario">
-            <form method="POST" action="{{ url_for('cadastrar_genero') }}" id="cadastro_genero">
+            <form method="POST" action="{{ url_for('genero.cadastrar_genero') }}" id="cadastro_genero">
                 <label for="genero_nome">Nome do Gênero:</label>
                 <input type="text" name="genero_nome" id="genero_nome" required>
                 <button type="submit">Cadastrar Gênero</button>

@@ -19,7 +19,7 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in'):
             flash("Por favor, realize o login como gerente.", "error")
-            return redirect(url_for('login'))
+            return redirect(url_for('auth.login'))
 
         gerente = Gerente.query.filter_by(ger_email=session.get('email')).first()
         if not gerente or gerente.ger_email != 'gerente@biblioteca.com':
@@ -37,7 +37,7 @@ def gerente_dashboard():
     
     if session.get('user_type') != 'gerente':
         flash('Acesso negado!', 'error')
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
     
     return render_template('gerente_dashboard.html')
 

@@ -48,7 +48,7 @@ def cadastrar_livro():
         # Validações básicas
         if not all([titulo, isbn, ano, autor_id, editora_id, genero_id, pais_origem, estoque, preco]):
             flash('Todos os campos são obrigatórios.', 'error')
-            return redirect(url_for('cadastrar_livro'))
+            return redirect(url_for('livro.cadastrar_livro'))
 
         try:
             # Converte os valores para os tipos corretos
@@ -60,7 +60,7 @@ def cadastrar_livro():
             genero_id = int(genero_id)
         except ValueError:
             flash('Dados inválidos. Verifique os campos numéricos.', 'error')
-            return redirect(url_for('cadastrar_livro'))
+            return redirect(url_for('livro.cadastrar_livro'))
 
         # Cria um novo livro
         novo_livro = Livro(
@@ -80,14 +80,14 @@ def cadastrar_livro():
             db.session.add(novo_livro)
             db.session.commit()
             flash('Livro cadastrado com sucesso!', 'success')
-        except IntegrityError:
+        except IntegrityError as e:
             db.session.rollback()
-            flash('Erro ao cadastrar o livro: ISBN ou título já existem.', 'error')
+            flash(f'Erro ao cadastrar o livro: ISBN ou título já existem.', 'error')
         except Exception as e:
             db.session.rollback()
             flash(f'Erro ao cadastrar o livro: {str(e)}', 'error')
 
-        return redirect(url_for('cadastrar_livro'))
+        return redirect(url_for('livro.cadastrar_livro'))
 
     # Busca autores, editoras e gêneros para exibir no formulário
     autores = db.session.query(Autor.aut_id, Autor.aut_nome).all()

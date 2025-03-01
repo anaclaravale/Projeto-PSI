@@ -25,9 +25,9 @@
                 <tr>
                     <td>{{ livro.liv_id }}</td>
                     <td>{{ livro.liv_titulo }}</td>
-                    <td>{{ livro.autor.aut_nome }}</td>
-                    <td>{{ livro.editora.edi_nome }}</td>
-                    <td>{{ livro.genero.gen_nome }}</td>
+                    <td>{{ livro.liv_aut_id.aut_nome }}</td>
+                    <td>{{ livro.liv_edi_id.edi_nome }}</td>
+                    <td>{{ livro.liv_gen_id.gen_nome }}</td>
                     <td>{{ livro.liv_estoque }}</td>
                     <td>R$ {{ livro.liv_preco }}</td>
                 </tr>
@@ -35,6 +35,6 @@
         </tbody>
     </table>
 
-    <a href="{{ url_for('gerente_dashboard') }}">Voltar ao Painel</a>
+    <a href="{{ url_for('gerente.gerente_dashboard') }}">Voltar ao Painel</a>
 </body>
 </html>

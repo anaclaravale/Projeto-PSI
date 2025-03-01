@@ -11,15 +11,15 @@
         <a href="cliente_dashboard">Início</a>
         <a href="editar">Editar</a>
         <a style="background-color: #052c25; color: white" href="emprestimo">Novo Emprestimo</a>
-        <a href="{{ url_for('gerenciar_emprestimos' ) }}">Meus Empréstimos</a>
-        <a href="{{ url_for('logout' ) }}">Sair</a>
+        <a href="{{ url_for('emprestimo.gerenciar_emprestimos' ) }}">Meus Empréstimos</a>
+        <a href="{{ url_for('auth.logout' ) }}">Sair</a>
     </nav>
     <main>
         <div class="livro_emp">
             <div class="cad_titulo">
                 <h1>Empréstimos de Livros</h1>
             </div>
-            <form id="emprestimoForm" method="POST" action="{{url_for('emprestimo')}}">
+            <form id="emprestimoForm" method="POST" action="{{url_for('livro.emprestimo')}}">
                 <div class="livros-emp">
                     {% for livro in livros %}
                     <div class="livro-container">

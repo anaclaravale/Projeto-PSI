@@ -9,6 +9,9 @@ from models.emprestimo import Emprestimo
 from models.emprestimo_livro import EmprestimoLivro
 from models.gerente import Gerente
 from models.livro import Livro
+from models.autor import Autor
+from models.editora import Editora
+from models.genero import Genero
 from extensoes import bcrypt
 from extensoes import db
 
@@ -39,7 +42,12 @@ def gerente_dashboard():
         flash('Acesso negado!', 'error')
         return redirect(url_for('auth.login'))
     
-    return render_template('gerente_dashboard.html')
+    total_livros = db.session.query(Livro).count()
+    total_autores = db.session.query(Autor).count()
+    total_editoras = db.session.query(Editora).count()
+    total_generos = db.session.query(Genero).count()
+
+    return render_template('gerente_dashboard.html', total_livros=total_livros, total_autores=total_autores, total_editoras=total_editoras, total_generos=total_generos)
 
 @gerente_bp.route('/adicionar_gerente', methods=['GET', 'POST'])
 @admin_required

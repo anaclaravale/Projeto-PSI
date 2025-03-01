@@ -14,5 +14,9 @@ class Livro(db.Model):
     liv_preco = db.Column(db.Float, nullable=False)
     liv_ger_id = db.Column(db.Integer, db.ForeignKey('tb_gerente.ger_id'), nullable=False)
 
+    autor = db.relationship("Autor", backref="livros")
+    editora = db.relationship("Editora", backref="livros")
+    genero = db.relationship("Genero", backref="livros")
+
     def __repr__(self):
         return f'<Livro {self.liv_titulo}>'

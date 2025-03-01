@@ -110,6 +110,7 @@ nav a:hover{
     font-size: 300%;
     color: #b3dad9;
     opacity: 90%;
+    font-family: "Young Serif";
 }
 
 .form{
@@ -136,6 +137,12 @@ nav a:hover{
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.voltar {
+    text-decoration: none;
+    font-family: "Liter";
+    color: #f9f9f9;
 }
 
 .flash-messages {

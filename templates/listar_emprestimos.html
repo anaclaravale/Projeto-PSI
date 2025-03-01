@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -34,5 +34,75 @@
     </table>
 
     <a href="{{ url_for('gerente.gerente_dashboard') }}">Voltar ao Painel</a>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='filtros.css') }}">
+    <title>Lista de Empréstimos</title>
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('gerente.gerente_dashboard' ) }}">Início</a>
+        <a href="{{ url_for('gerente.listar_livros' ) }}">Listar Livros</a>
+        <a href="{{ url_for('gerente.listar_clientes' ) }}">Listar Clientes</a>
+        <a style="background-color: #052c25; color: white" href="{{ url_for('gerente.listar_emprestimos' ) }}">Listar Emprestimos</a>
+    </nav>
+    <main class="main">
+        <div class="list_titulo">
+            <h1>Lista de Empréstimos</h1>
+        </div>
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Data Início</th>
+                    <th>Data Devolução</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emprestimo in emprestimos %}
+                    <tr>
+                        <td>{{ emprestimo.emp_id }}</td>
+                        <td>{{ emprestimo.cliente.cli_nome }}</td>
+                        <td>{{ emprestimo.emp_data_ini.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ emprestimo.emp_dev.strftime('%d/%m/%Y') }}</td>
+                        <td>R$ {{ emprestimo.emp_total | round(2) }}</td>
+                        <td>{{ emprestimo.emp_status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    <script>
+        setTimeout(function() {
+            var flashContainer = document.getElementById("flash-container");
+            if (flashContainer) {
+                flashContainer.style.transition = "opacity 0.5s";
+                flashContainer.style.opacity = "0";
+                setTimeout(() => flashContainer.remove(), 500); //
+            }
+        }, 3000);
+    </script>
 </body>
 </html>

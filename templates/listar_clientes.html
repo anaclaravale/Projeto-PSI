@@ -1,34 +1,64 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='filtros.css') }}">
     <title>Listar Clientes</title>
 </head>
 <body>
-    <h1>Lista de Clientes</h1>
-
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Telefone</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cliente in clientes %}
+    <nav>
+        <a href="{{ url_for('gerente.gerente_dashboard' ) }}">Início</a>
+        <a href="{{ url_for('gerente.listar_livros' ) }}">Listar Livros</a>
+        <a style="background-color: #052c25; color: white" href="{{ url_for('gerente.listar_clientes' ) }}">Listar Clientes</a>
+        <a href="{{ url_for('gerente.listar_emprestimos' ) }}">Listar Emprestimos</a>
+    </nav>
+    <main class="main">
+        <div class="list_titulo">
+            <h1>Lista de Clientes</h1>
+        </div>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>{{ cliente.cli_id }}</td>
-                    <td>{{ cliente.cli_nome }}</td>
-                    <td>{{ cliente.cli_email }}</td>
-                    <td>{{ cliente.cli_telefone }}</td>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                    <tr>
+                        <td>{{ cliente.cli_id }}</td>
+                        <td>{{ cliente.cli_nome }}</td>
+                        <td>{{ cliente.cli_email }}</td>
+                        <td>{{ cliente.cli_telefone }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
 
-    <a href="{{ url_for('gerente.gerente_dashboard') }}">Voltar ao Painel</a>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    <script>
+        setTimeout(function() {
+            var flashContainer = document.getElementById("flash-container");
+            if (flashContainer) {
+                flashContainer.style.transition = "opacity 0.5s";
+                flashContainer.style.opacity = "0";
+                setTimeout(() => flashContainer.remove(), 500); //
+            }
+        }, 3000);
+    </script>
 </body>
 </html>

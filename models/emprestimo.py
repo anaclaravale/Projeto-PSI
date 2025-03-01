@@ -9,5 +9,7 @@ class Emprestimo(db.Model):
     emp_total = db.Column(db.Float, nullable=False)
     emp_status = db.Column(db.String(15), nullable=False)
 
+    cliente = db.relationship('Cliente', backref='emprestimos')
+
     def __repr__(self):
         return f'<Emprestimo {self.emp_id}>'

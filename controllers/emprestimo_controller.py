@@ -16,6 +16,7 @@ def gerenciar_emprestimos():
 
     emprestimos_com_livros = []
     for emprestimo in emprestimos:
+        # Recuperando os livros associados ao empréstimo
         livros = EmprestimoLivro.query.filter_by(eml_emp_id=emprestimo.emp_id).all()
         emprestimos_com_livros.append({'emprestimo': emprestimo, 'livros': livros})
 

@@ -76,6 +76,7 @@ document.addEventListener('input', function(event) {
     }
 });
 
+// Código para ocultar mensagens de flash após 3 segundos
 setTimeout(function() {
     var flashContainer = document.getElementById("flash-container");
     if (flashContainer) {

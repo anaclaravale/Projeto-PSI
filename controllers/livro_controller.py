@@ -151,9 +151,19 @@ def emprestimo():
 
         db.session.commit()
         flash('Empréstimo realizado com sucesso!', 'success')
-        return redirect('/emprestimo.gerenciar_emprestimos')
+        return redirect('gerenciar_emprestimos')
 
-    livros = Livro.query.join(Genero).join(Autor).all()
+    # Corrigido: utilizando add_columns para garantir que os dados corretos sejam retornados
+    livros = Livro.query.join(Genero).join(Autor).add_columns(
+        Livro.liv_id,
+        Livro.liv_titulo,
+        Livro.liv_preco,
+        Livro.liv_estoque,
+        Genero.gen_nome,
+        Autor.aut_nome
+    ).all()
+
+    # Depuração - verifique o que está sendo retornado
+    print(livros)
+
     return render_template('emprestimo.html', livros=livros)
-
-

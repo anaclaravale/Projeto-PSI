@@ -37,46 +37,23 @@ def admin_required(f):
 def gerente_dashboard():
     session['user_type'] = session.get('user_type', 'desconhecido')
     print(f"DEBUG: user_type na rota = {session.get('user_type')}")
+
+    # Calcula os totais
+    total_livros = Livro.query.count()  # Total de livros
+    total_autores = Autor.query.count()  # Total de autores
+    total_editoras = Editora.query.count()  # Total de editoras
+    total_generos = db.session.query(func.count(func.distinct(Genero.gen_id))).scalar()
     
     if session.get('user_type') != 'gerente':
         flash('Acesso negado!', 'error')
         return redirect(url_for('auth.login'))
-    
-    total_livros = db.session.query(Livro).count()
-    total_autores = db.session.query(Autor).count()
-    total_editoras = db.session.query(Editora).count()
-    total_generos = db.session.query(Genero).count()
 
-    return render_template('gerente_dashboard.html', total_livros=total_livros, total_autores=total_autores, total_editoras=total_editoras, total_generos=total_generos)
-
-@gerente_bp.route('/adicionar_gerente', methods=['GET', 'POST'])
-@admin_required
-def adicionar_gerente():
-    if request.method == 'POST':
-        codigo = request.form.get('codigo')
-        nome = request.form.get('nome')
-        telefone = request.form.get('telefone')
-        email = request.form.get('email')
-        senha = request.form.get('senha')
-
-        if Gerente.query.filter_by(ger_email=email).first():
-            flash('E-mail já cadastrado para outro gerente.', 'error')
-            return redirect(url_for('adicionar_gerente'))
-
-        hashed_senha = bcrypt.generate_password_hash(senha).decode('utf-8')
-        novo_gerente = Gerente(ger_codigo=codigo, ger_nome=nome, ger_telefone=telefone, ger_email=email, ger_senha=hashed_senha)
-
-        try:
-            db.session.add(novo_gerente)
-            db.session.commit()
-            flash('Gerente adicionado com sucesso!', 'success')
-        except IntegrityError:
-            db.session.rollback()
-            flash('Erro ao adicionar gerente: e-mail já existe.', 'error')
-
-        return redirect(url_for('adicionar_gerente'))
-
-    return render_template('admin_dashboard.html')
+    # Passa as variáveis para o template
+    return render_template('gerente_dashboard.html', 
+                            total_livros=total_livros,
+                            total_autores=total_autores,
+                            total_editoras=total_editoras,
+                            total_generos=total_generos)
 
 @gerente_bp.route('/listar_clientes')
 @admin_required
@@ -113,23 +90,6 @@ def relatorio_emprestimos_cliente():
         ).group_by(Cliente.cli_id).order_by(desc('total_emprestimos')).all()
 
     return render_template('relatorio_emprestimos_cliente.html', relatorio=relatorio)
-
-@gerente_bp.route('/clientes_acima_cem', methods=['GET', 'POST'])
-@admin_required
-def clientes_acima_cem():
-    clientes = None
-    if request.method == 'POST':
-        data_inicio = request.form.get('data_inicio')
-        data_fim = request.form.get('data_fim')
-
-        clientes = db.session.query(
-            Cliente.cli_nome,
-            func.sum(Emprestimo.emp_total).label('total')
-        ).join(Emprestimo).filter(
-            Emprestimo.emp_data_ini.between(data_inicio, data_fim)
-        ).group_by(Cliente.cli_id).having(func.sum(Emprestimo.emp_total) > 100).all()
-
-    return render_template('clientes_acima_cem.html', clientes=clientes)
 
 @gerente_bp.route('/top_livros', methods=['GET'])
 @admin_required

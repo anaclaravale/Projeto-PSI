@@ -21,9 +21,12 @@
             <div id="filtros" style="height: 120vh;">
                 <h2>Filtros</h2>
                 <ul style="height: 30%;">
-                    <li><a href="{{ url_for('gerente.listar_livros') }}">Listar Livros</a></li>
                     <li><a href="{{ url_for('gerente.listar_clientes') }}">Listar Clientes</a></li>
+                    <li><a href="{{ url_for('gerente.listar_livros') }}">Listar Livros</a></li>
                     <li><a href="{{ url_for('gerente.listar_emprestimos') }}">Listar Empréstimos</a></li>
+                    <li><a href="{{ url_for('gerente.livros_nao_emprestados') }}">Livros Não Emprestados</a></li>
+                    <li><a href="{{ url_for('gerente.top_livros') }}">Top Livros Pedidos</a></li>
+                    <li><a href="{{ url_for('gerente.relatorio_emprestimos_cliente') }}">Total de Empréstimos por Cliente</a></li>
                 </ul>
             </div>
 
@@ -34,19 +37,19 @@
         <aside style="height: 120vh;">
             <div id="infos">
                 <div class="info">
-                    <span>{{total_livros}}</span>
+                    <span>{{ total_livros }}</span>
                     <h1>Livros</h1>
                 </div>
                 <div class="info">
-                    <span>{{total_autores}}</span>
+                    <span>{{ total_autores }}</span>
                     <h1>Autores</h1>
                 </div>
                 <div class="info">
-                    <span>{{total_editoras}}</span>
+                    <span>{{ total_editoras }}</span>
                     <h1>Editoras</h1>
                 </div>
                 <div class="info">
-                    <span>{{total_generos}}</span>
+                    <span>{{ total_generos }}</span>
                     <h1>Gêneros</h1>
                 </div>
             </div>

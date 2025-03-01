@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='form.css') }}">
+    <title>Top Livros</title>
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('gerente.gerente_dashboard' ) }}">Início</a>
+        <a href="{{ url_for('gerente.listar_clientes' ) }}">Listar Clientes</a>
+        <a href="{{ url_for('gerente.listar_livros' ) }}">Listar Livros</a>
+        <a href="{{ url_for('gerente.listar_emprestimos' ) }}">Listar Emprestimos</a>
+        <a href="{{ url_for('gerente.livros_nao_emprestados' ) }}">Não Emprestados</a>
+        <a style="background-color: #052c25; color: white" href="{{ url_for('gerente.top_livros' ) }}">Top Livros</a>
+        <a href="{{ url_for('gerente.relatorio_emprestimos_cliente' ) }}">Total Empréstimos</a>
+    </nav>
+    <main class="main">
+        <div class="list_titulo">
+            <h1 style="font-family: 'Young Serif', 'Times New Roman'; font-size:80px;">Top Livros</h1>
+        </div>
+        <form method="GET" class="form">
+            <label for="dias">Últimos:</label>
+            <select name="dias" id="dias">
+                <option value="7">7 dias</option>
+                <option value="30" selected>30 dias</option>
+                <option value="60">60 dias</option>
+                <option value="90">90 dias</option>
+            </select>
+            <button type="submit" class="botao">Filtrar</button>
+        </form>
+    
+        {% if top_livros %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título do Livro</th>
+                    <th>Total de Empréstimos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for livro in top_livros %}
+                <tr>
+                    <td>{{ livro[0] }}</td>
+                    <td>{{ livro[1] }}</td>
+                    <td>{{ livro[2] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </main>
+    
+</body>
+</html>
